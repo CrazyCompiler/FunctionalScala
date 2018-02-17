@@ -10,7 +10,7 @@ object Exercise2_3 {
 
       val c = curry(add)
       val add2 = c(2)
-      val add3 = add2(3)
+      val add3 = add2(8)
       println(add3)
   }
 }
