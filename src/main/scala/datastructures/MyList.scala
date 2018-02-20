@@ -1,6 +1,6 @@
 /*Exercises :
   3.2
-  3.16
+  3.23
 
 
 TODO:// Make copy, append, dropWhile functions
@@ -15,6 +15,8 @@ case object Nil extends MyList[Nothing]
 case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A]
 
 object MyList {
+
+  def flatMapWithMap[A,B](ds: MyList[A])(f: (A) => MyList[B]): MyList[B] = MyList.normalise(MyList.map(ds)(f))
 
   def filterWithFoldLeft[A](ds: MyList[A])(f: (A) => Boolean): MyList[A] = MyList.foldLeft(ds, MyList[A]())(
     (a: A, b) => {
@@ -191,6 +193,9 @@ object MyListTest {
     println("List for creating filter" + MyList.toString(a))
     println("filter all values in a list which are smaller than 3 filter: " + MyList.toString(MyList.filter(a)(_ < 3)))
     println("filter all values in a list which are even: " + MyList.toString(MyList.filter(a)(_ % 2 == 0)))
+
+    println("List for using flatMapWithMap" + MyList.toString(a))
+    println("Map all values in a list which will create list of list and them flattern them: " + MyList.toString(MyList.flatMapWithMap(a)((x) => MyList(x,x))))
 
 
   }
