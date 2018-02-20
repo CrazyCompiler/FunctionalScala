@@ -31,23 +31,10 @@ object MyList {
   //    }
   //  }
 
-  def drop[A](ds: MyList[A], noOfElementsToDrop: Int): MyList[A] = {
-
-    def generateList(list: MyList[A], counter: Int): MyList[A] = {
-      list match {
-        case Nil => Nil
-        case Cons(x, xs) => {
-          if (noOfElementsToDrop < 1)
-            list
-          else if (counter >= noOfElementsToDrop)
-            xs
-          else
-            generateList(xs, counter + 1)
-        }
-      }
-    }
-
-    generateList(ds, 1)
+  def drop[A](ds: MyList[A], noOfElementsToDrop: Int): MyList[A] = ds match {
+    case Nil => Nil
+    case Cons(x,xs) if(noOfElementsToDrop != 0) => drop(xs,noOfElementsToDrop-1)
+    case Cons(x,xs) if(noOfElementsToDrop == 0) => ds
   }
 
   def sum(ints: MyList[Int]): Int = ints match {
@@ -106,12 +93,15 @@ object MyList {
     }
   }
 
+  def reverse[A](as: MyList[A]): MyList[A] = foldLeft(as,Nil: MyList[A])(Cons.apply)
+
   def length[A](as: MyList[A]): Int = foldLeft(as, 0)((x: A, y: Int) => y + 1)
+
 }
 
 object MyListTest {
   def main(args: Array[String]): Unit = {
-    val a = MyList(1, 2, 3)
+    val a = MyList(1, 2, 3, 4, 5)
     println("List" + MyList.toString(a))
     println("Add: " + MyList.sum(a))
 
@@ -121,22 +111,29 @@ object MyListTest {
     println("Tail : " + MyList.toString(MyList.tail(a)))
     println("string: " + MyList.toString(a))
 
-    val d = MyList(1, 2, 3, 4)
-    println("List for setHead" + MyList.toString(d))
-    println("setHead: " + MyList.toString(MyList.setHead(d, 9)))
+    println("List for setHead" + MyList.toString(a))
+    println("setHead: " + MyList.toString(MyList.setHead(a, 9)))
 
-    val f = MyList(1, 2, 3, 4, 5)
-    println("List for fold right" + MyList.toString(f))
-    println("fold right for sum: " + MyList.foldRight(f, 0)(_ + _))
-    println("fold right for product: " + MyList.foldRight(f, 1)(_ * _))
-    println("fold right for product: " + MyList.foldRight(f, Nil: MyList[Int])(Cons.apply))
+    println("List for fold right" + MyList.toString(a))
+    println("fold right for sum: " + MyList.foldRight(a, 0)(_ + _))
+    println("fold right for product: " + MyList.foldRight(a, 1)(_ * _))
+    println("fold right for product: " + MyList.foldRight(a, Nil: MyList[Int])(Cons.apply))
 
-    println("Print the lenth of : " + MyList.length(f))
+    println("Print the lenth of : " + MyList.length(a))
 
-    val g = MyList(1, 2, 3, 4, 5)
-    println("List for fold left" + MyList.toString(g))
-    println("fold left for sum: " + MyList.foldLeft(g, 0)(_ + _))
-    println("fold left for product: " + MyList.foldLeft(g, 1)(_ * _))
+    println("List for fold left" + MyList.toString(a))
+    println("fold left for sum: " + MyList.foldLeft(a, 0)(_ + _))
+    println("fold left for product: " + MyList.foldLeft(a, 1)(_ * _))
+
+    println("List for Drop" + MyList.toString(a))
+    println("Drop 3 items from the list: " + MyList.toString(MyList.drop(a,3)))
+
+//    println("List for fold righ using fold left" + MyList.toString(a))
+//    println("fold right for sum: " + MyList.foldRight(a, 0)(_ + _))
+//    println("fold right for product: " + MyList.foldRight(a, 1)(_ * _))
+//    println("fold right for product: " + MyList.foldRight(a, Nil: MyList[Int])(Cons.apply))
+
+
 
   }
 }
