@@ -16,6 +16,25 @@ case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A]
 
 object MyList {
 
+  def filterWithFoldLeft[A](ds: MyList[A])(f: (A) => Boolean): MyList[A] = MyList.foldLeft(ds, MyList[A]())(
+    (a: A, b) => {
+      var c = b
+      if(f(a)){
+        c = MyList.append(b: MyList[A], a)
+      }
+      c
+    }
+  )
+
+  def filter[A](ds: MyList[A])(f: (A) => Boolean): MyList[A] = {
+    def iterator(list: MyList[A],newList: MyList[A]):MyList[A] = list match {
+      case Nil => newList
+      case Cons(x, xs) if f(x) => Cons(x,iterator(xs,newList))
+      case Cons(x, xs) => iterator(xs,newList)
+    }
+    iterator(ds,MyList())
+  }
+
   def mapWithFoldLeft[A, B](ds: MyList[A])(f: (A) => B): MyList[B] = MyList.foldLeft(ds, MyList[B]())(
     (a: A, b) => {
       MyList.append(b: MyList[B], f(a))
@@ -164,6 +183,14 @@ object MyListTest {
     println("List for creating map" + MyList.toString(a))
     println("map all values in a list and add 1: " + MyList.toString(MyList.map(a)(_ + 1)))
     println("map all values in a list and add 1: " + MyList.toString(MyList.map(a)(_ * 5)))
+
+    println("List for creating filterWithFoldLeft" + MyList.toString(a))
+    println("filter all values in a list which are smaller than 3 filterWithFoldLeft: " + MyList.toString(MyList.filterWithFoldLeft(a)(_ < 3)))
+    println("filter all values in a list which are even: " + MyList.toString(MyList.filterWithFoldLeft(a)(_ % 2 == 0)))
+
+    println("List for creating filter" + MyList.toString(a))
+    println("filter all values in a list which are smaller than 3 filter: " + MyList.toString(MyList.filter(a)(_ < 3)))
+    println("filter all values in a list which are even: " + MyList.toString(MyList.filter(a)(_ % 2 == 0)))
 
 
   }
