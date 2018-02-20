@@ -22,6 +22,12 @@ case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A]
 
 object MyList {
 
+  def normalise[A](ds: MyList[MyList[A]]): MyList[A] = MyList.foldLeft(ds,MyList[A]())(MyList.appendList)
+
+  def append[A](ds: MyList[A], i: A): MyList[A] = MyList.foldRight(ds,Cons(i,Nil))(Cons.apply)
+
+  def appendList[A](src: MyList[A], dest: MyList[A]):  MyList[A] = MyList.foldRight(src,dest)(Cons.apply)
+
   //  def dropWhile[A](list: MyList[A])(fn: (A) => Boolean): MyList[A] = list match {
   //    case Cons(h,t) if fn(h) => {
   //      dropWhile(t)(fn)
@@ -62,13 +68,8 @@ object MyList {
     }
   }
 
-  def apply[A](as: A*): MyList[A] =
-    if (as.isEmpty) Nil
-    else Cons(as.head, apply(as.tail: _*))
-
-
-  def toString(ds: MyList[Int]): String = {
-    def generateRepresentation(list: MyList[Int], representation: String): String = {
+  def toString[A](ds: MyList[A]): String = {
+    def generateRepresentation(list: MyList[A], representation: String): String = {
       list match {
         case Nil => representation
         case Cons(x, Nil) => generateRepresentation(Nil, representation + x + "]")
@@ -96,6 +97,10 @@ object MyList {
   def reverse[A](as: MyList[A]): MyList[A] = foldLeft(as,Nil: MyList[A])(Cons.apply)
 
   def length[A](as: MyList[A]): Int = foldLeft(as, 0)((x: A, y: Int) => y + 1)
+
+  def apply[A](as: A*): MyList[A] =
+    if (as.isEmpty) Nil
+    else Cons(as.head, apply(as.tail: _*))
 
 }
 
@@ -128,12 +133,12 @@ object MyListTest {
     println("List for Drop" + MyList.toString(a))
     println("Drop 3 items from the list: " + MyList.toString(MyList.drop(a,3)))
 
-//    println("List for fold righ using fold left" + MyList.toString(a))
-//    println("fold right for sum: " + MyList.foldRight(a, 0)(_ + _))
-//    println("fold right for product: " + MyList.foldRight(a, 1)(_ * _))
-//    println("fold right for product: " + MyList.foldRight(a, Nil: MyList[Int])(Cons.apply))
+    println("List for append using fold left" + MyList.toString(a))
+    println("append using fold left: " + MyList.toString(MyList.append(a, 9)))
 
-
+    val c = MyList(a,a,a)
+    println("List for normalise list of list" + MyList.toString(c))
+    println("normalise using fold left: " + MyList.toString(MyList.normalise(c)))
 
   }
 }
