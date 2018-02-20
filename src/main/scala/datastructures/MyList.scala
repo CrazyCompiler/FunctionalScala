@@ -1,13 +1,7 @@
 /*Exercises :
   3.2
-  3.3
-  3.4
-  3.5
-  3.6
-  3.7
-  3.8
-  3.9
-  3:10
+  3.16
+
 
 TODO:// Make copy, append, dropWhile functions
  */
@@ -22,11 +16,31 @@ case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A]
 
 object MyList {
 
-  def normalise[A](ds: MyList[MyList[A]]): MyList[A] = MyList.foldLeft(ds,MyList[A]())(MyList.appendList)
+  def mapWithFoldLeft[A, B](ds: MyList[A])(f: (A) => B): MyList[B] = MyList.foldLeft(ds, MyList[B]())(
+    (a: A, b) => {
+      MyList.append(b: MyList[B], f(a))
+    }
+  )
 
-  def append[A](ds: MyList[A], i: A): MyList[A] = MyList.foldRight(ds,Cons(i,Nil))(Cons.apply)
+  def map[A, B](ds: MyList[A])(f: (A) => B): MyList[B] = {
+    def iterator(list: MyList[A],newList: MyList[B]):MyList[B] = list match {
+      case Nil => newList
+      case Cons(x, xs) => Cons(f(x),iterator(xs,newList))
+    }
+    iterator(ds,MyList())
+  }
 
-  def appendList[A](src: MyList[A], dest: MyList[A]):  MyList[A] = MyList.foldRight(src,dest)(Cons.apply)
+  def transform[Int](ds: MyList[Int]): MyList[Int] = MyList.foldLeft(ds, MyList[Int]())(
+    (a: Int, b: MyList[Int]) => {
+      MyList.append(b, (a + "4").asInstanceOf[Int])
+    }
+  )
+
+  def normalise[A](ds: MyList[MyList[A]]): MyList[A] = MyList.foldLeft(ds, MyList[A]())(MyList.appendList)
+
+  def append[A](ds: MyList[A], i: A): MyList[A] = MyList.foldRight(ds, Cons(i, Nil))(Cons.apply)
+
+  def appendList[A](src: MyList[A], dest: MyList[A]): MyList[A] = MyList.foldRight(src, dest)(Cons.apply)
 
   //  def dropWhile[A](list: MyList[A])(fn: (A) => Boolean): MyList[A] = list match {
   //    case Cons(h,t) if fn(h) => {
@@ -39,8 +53,8 @@ object MyList {
 
   def drop[A](ds: MyList[A], noOfElementsToDrop: Int): MyList[A] = ds match {
     case Nil => Nil
-    case Cons(x,xs) if(noOfElementsToDrop != 0) => drop(xs,noOfElementsToDrop-1)
-    case Cons(x,xs) if(noOfElementsToDrop == 0) => ds
+    case Cons(x, xs) if (noOfElementsToDrop != 0) => drop(xs, noOfElementsToDrop - 1)
+    case Cons(x, xs) if (noOfElementsToDrop == 0) => ds
   }
 
   def sum(ints: MyList[Int]): Int = ints match {
@@ -64,7 +78,7 @@ object MyList {
   def setHead[A](ds: MyList[A], head: A): MyList[A] = {
     ds match {
       case Nil => Nil
-      case Cons(x, xs) => Cons(head, xs)
+      case Cons(_, xs) => Cons(head, xs)
     }
   }
 
@@ -82,19 +96,19 @@ object MyList {
 
   def foldRight[A, B](as: MyList[A], accumulatedValue: B)(f: (A, B) => B): B = as match {
     case Nil => accumulatedValue
-    case Cons(x, xs) =>{
+    case Cons(x, xs) => {
       f(x, foldRight(xs, accumulatedValue)(f))
     }
   }
 
-  def foldLeft[A,B](as: MyList[A], accumulatedValue:B)(f: (A,B) => B):B = as match {
+  def foldLeft[A, B](as: MyList[A], accumulatedValue: B)(f: (A, B) => B): B = as match {
     case Nil => accumulatedValue
     case Cons(x, xs) => {
-      foldLeft(xs, f(x,accumulatedValue))(f)
+      foldLeft(xs, f(x, accumulatedValue))(f)
     }
   }
 
-  def reverse[A](as: MyList[A]): MyList[A] = foldLeft(as,Nil: MyList[A])(Cons.apply)
+  def reverse[A](as: MyList[A]): MyList[A] = foldLeft(as, Nil: MyList[A])(Cons.apply)
 
   def length[A](as: MyList[A]): Int = foldLeft(as, 0)((x: A, y: Int) => y + 1)
 
@@ -131,14 +145,26 @@ object MyListTest {
     println("fold left for product: " + MyList.foldLeft(a, 1)(_ * _))
 
     println("List for Drop" + MyList.toString(a))
-    println("Drop 3 items from the list: " + MyList.toString(MyList.drop(a,3)))
+    println("Drop 3 items from the list: " + MyList.toString(MyList.drop(a, 3)))
 
     println("List for append using fold left" + MyList.toString(a))
     println("append using fold left: " + MyList.toString(MyList.append(a, 9)))
 
-    val c = MyList(a,a,a)
+    val c = MyList(a, a, a)
     println("List for normalise list of list" + MyList.toString(c))
     println("normalise using fold left: " + MyList.toString(MyList.normalise(c)))
+
+    println("List for creating transformation function" + MyList.toString(a))
+    println("transformation all values in a list: " + MyList.toString(MyList.transform(a)))
+
+    println("List for creating mapWithFoldLeft" + MyList.toString(a))
+    println("map all values in a list and add 1 mapWithFoldLeft: " + MyList.toString(MyList.mapWithFoldLeft(a)(_ + 1)))
+    println("map all values in a list and multiply 1 mapWithFoldLeft: " + MyList.toString(MyList.mapWithFoldLeft(a)(_ * 5)))
+
+    println("List for creating map" + MyList.toString(a))
+    println("map all values in a list and add 1: " + MyList.toString(MyList.map(a)(_ + 1)))
+    println("map all values in a list and add 1: " + MyList.toString(MyList.map(a)(_ * 5)))
+
 
   }
 }
